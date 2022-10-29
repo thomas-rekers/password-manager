@@ -7,7 +7,11 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 
+import csv
+
 DEFAULT_ITERATIONS = 390000
+
+PASSWORD_TOKENS_FILE = "password_tokens.csv"
 
 
 def password_to_key(password: str, salt: bytes, iterations: int) -> bytes:
@@ -41,9 +45,43 @@ def decrypt_text(password: str, token: bytes) -> str:
     return Fernet(urlsafe_b64encode(key)).decrypt(message_token).decode()
 
 
-text = "this is a text"
-password = "password"
-token = encrypt_text(password, text, 100)
-print(token)
-derived_text = decrypt_text(password, token)
-print(derived_text)
+def is_duplicate(title):
+    with open(PASSWORD_TOKENS_FILE, "r") as f:
+        for row in csv.reader(f):
+            if row[0] == title:
+                return True
+    return False
+
+
+def add_password(title, password):
+    if is_duplicate(title):
+        raise ValueError("title already exists")
+    with open(PASSWORD_TOKENS_FILE, "a") as f:
+        csv.writer(f).writerow([title, password])
+
+
+def get_password(title):
+    with open(PASSWORD_TOKENS_FILE, "r") as f:
+        for row in csv.reader(f):
+            if row[0] == title:
+                return row[1]
+    raise ValueError("no password found for this title")
+
+
+def main():
+    main_password = "main"
+    title = "title"
+    password = "password"
+
+    # create new password
+    password_token = encrypt_text(main_password, password)
+    add_password(title, password_token.decode())
+
+    # extract password
+    password_token = get_password(title).encode()
+    password = decrypt_text(main_password, password_token)
+    print(password)
+
+
+if __name__ == "__main__":
+    main()
