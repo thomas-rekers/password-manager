@@ -7,9 +7,14 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 
+import bcrypt
+
 import csv
 
+from cli import get_args, get_main_password
+
 DEFAULT_ITERATIONS = 390000
+ROUNDS = 12
 
 PASSWORD_TOKENS_FILE = "password_tokens.csv"
 
@@ -45,7 +50,7 @@ def decrypt_text(password: str, token: bytes) -> str:
     return Fernet(urlsafe_b64encode(key)).decrypt(message_token).decode()
 
 
-def is_duplicate(title):
+def is_duplicate(title: str) -> bool:
     with open(PASSWORD_TOKENS_FILE, "r") as f:
         for row in csv.reader(f):
             if row[0] == title:
@@ -53,14 +58,14 @@ def is_duplicate(title):
     return False
 
 
-def add_password(title, password):
+def add_password(title: str, password: str):
     if is_duplicate(title):
         raise ValueError("title already exists")
     with open(PASSWORD_TOKENS_FILE, "a") as f:
         csv.writer(f).writerow([title, password])
 
 
-def get_password(title):
+def get_password(title: str) -> str:
     with open(PASSWORD_TOKENS_FILE, "r") as f:
         for row in csv.reader(f):
             if row[0] == title:
@@ -69,18 +74,42 @@ def get_password(title):
 
 
 def main():
-    main_password = "main"
-    title = "title"
-    password = "password"
+    cli_args = get_args()
+    mode, title, password = [cli_args.mode, cli_args.title, cli_args.password]
+    main_password = get_main_password()
 
-    # create new password
-    password_token = encrypt_text(main_password, password)
-    add_password(title, password_token.decode())
+    if mode == "get":
+        # extract password
+        try:
+            password_token = get_password(title).encode()
+            password = decrypt_text(main_password, password_token)
+            print(password)
+        except (ValueError):
+            print("no password found for this title")
 
-    # extract password
-    password_token = get_password(title).encode()
-    password = decrypt_text(main_password, password_token)
-    print(password)
+    if mode == "set":
+        # set new password
+        try:
+            password_token = encrypt_text(main_password, password)
+            add_password(title, password_token.decode())
+            print("password was set successfully")
+        except (ValueError):
+            print("the provided title already exists")
+
+    if mode == "generate":
+        pass
+
+    if mode == "update":
+        pass
+
+    if mode == "list":
+        pass
+
+    if mode == "delete":
+        pass
+
+    if mode == "init":
+        pass
 
 
 if __name__ == "__main__":
