@@ -1,4 +1,6 @@
 import os
+import random
+import string
 
 from cryptography.fernet import Fernet
 
@@ -7,16 +9,26 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 
-import bcrypt
-
 import csv
 
 from cli import get_args, get_main_password
 
 DEFAULT_ITERATIONS = 390000
 ROUNDS = 12
+DEFAULT_PASSWORD_LENGTH = 16
+SPECIAL_CHARACTERS = "}{[]|,.;:/!*#?+-_=~^%()"
 
 PASSWORD_TOKENS_FILE = "password_tokens.csv"
+
+
+def generate_password(length=DEFAULT_PASSWORD_LENGTH):
+    character_string = (
+        string.ascii_lowercase
+        + string.ascii_uppercase
+        + string.digits
+        + SPECIAL_CHARACTERS
+    )
+    return "".join(random.choice(character_string) for _ in range(length))
 
 
 def password_to_key(password: str, salt: bytes, iterations: int) -> bytes:
@@ -79,7 +91,6 @@ def main():
     main_password = get_main_password()
 
     if mode == "get":
-        # extract password
         try:
             password_token = get_password(title).encode()
             password = decrypt_text(main_password, password_token)
@@ -88,7 +99,6 @@ def main():
             print("no password found for this title")
 
     if mode == "set":
-        # set new password
         try:
             password_token = encrypt_text(main_password, password)
             add_password(title, password_token.decode())
@@ -97,7 +107,13 @@ def main():
             print("the provided title already exists")
 
     if mode == "generate":
-        pass
+        try:
+            password = generate_password()
+            password_token = encrypt_text(main_password, password)
+            add_password(title, password_token.decode())
+            print(f"your new password: {password}")
+        except (ValueError):
+            print("the provided title already exists")
 
     if mode == "update":
         pass
