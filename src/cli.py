@@ -5,14 +5,17 @@ from getpass import getpass
 def get_args():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-        "mode", action="store", type=str, choices=["get", "set", "create"]
+        "mode",
+        action="store",
+        type=str,
+        choices=["get", "set", "generate", "list", "init"],
     )
     arg_parser.add_argument(
         "-t",
         "--title",
         action="store",
         type=str,
-        required=True,
+        required=False,
         help="the title to identify the password",
     )
     arg_parser.add_argument(
@@ -27,6 +30,9 @@ def get_args():
     args = arg_parser.parse_args()
     if args.mode == "set" and not args.password:
         arg_parser.error("argument -p/--password is required for setting a password")
+
+    if args.mode not in ("list", "init") and not args.title:
+        arg_parser.error(f"argument -r/--title is required for mode {args.mode}")
     return args
 
 
