@@ -8,7 +8,16 @@ def get_args():
         "mode",
         action="store",
         type=str,
-        choices=["get", "set", "generate", "list", "init"],
+        choices=[
+            "get",
+            "set",
+            "generate",
+            "show",
+            "init",
+            "update",
+            "regenerate",
+            "delete",
+        ],
     )
     arg_parser.add_argument(
         "-t",
@@ -31,7 +40,7 @@ def get_args():
     if args.mode == "set" and not args.password:
         arg_parser.error("argument -p/--password is required for setting a password")
 
-    if args.mode not in ("list", "init") and not args.title:
+    if args.mode not in ("show", "init") and not args.title:
         arg_parser.error(f"argument -r/--title is required for mode {args.mode}")
     return args
 
