@@ -1,10 +1,11 @@
+import os
 import csv
 
 import crypto
 
 
-PASSWORD_TOKENS_FILE = "password_tokens.csv"
-MAIN_PASSWORD_TOKEN_FILE = "main_password_token.csv"
+PASSWORD_TOKENS_FILE = os.getenv("PASSWORD_TOKENS_FILE")
+MAIN_PASSWORD_TOKEN_FILE = os.getenv("MAIN_PASSWORD_TOKEN_FILE")
 
 
 def is_duplicate(title: str) -> bool:

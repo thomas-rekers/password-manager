@@ -1,5 +1,6 @@
 import random
 import string
+import pyperclip
 
 import crypto
 import file_handler
@@ -44,6 +45,7 @@ def generate_password(main_password, title):
         password = get_random_string()
         password_token = crypto.encrypt_text(main_password, password)
         file_handler.add_password(title, password_token.decode())
-        print(f"your new password: {password}")
+        pyperclip.copy(password)
+        print("the password was copied to clipboard")
     except (ValueError):
         print("the provided title already exists")

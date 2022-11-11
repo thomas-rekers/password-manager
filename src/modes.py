@@ -1,6 +1,7 @@
 import crypto
 import file_handler
 import utils
+import pyperclip
 
 
 def get(cli_args):
@@ -8,7 +9,8 @@ def get(cli_args):
         main_password = utils.get_and_check_main_password()
         password_token = file_handler.get_password(cli_args.title).encode()
         password = crypto.decrypt_text(main_password, password_token)
-        print(password)
+        pyperclip.copy(password)
+        print("password was copied to clipboard")
     except (ValueError):
         print("no password found for this title")
 
