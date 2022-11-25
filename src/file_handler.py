@@ -66,7 +66,7 @@ def update_password(main_password: str, title: str, password: str):
     with open(PASSWORD_TOKENS_FILE, "r") as f:
         for row in csv.reader(f):
             if row[0] == title:
-                row[1] = crypto.encrypt_text(main_password, password).decode()
+                row[1] = crypto.encrypt_password(main_password, password).decode()
                 title_exists = True
             rows.append(row)
         if not title_exists:
@@ -84,7 +84,7 @@ def delete_password(title: str):
         for row in csv.reader(f):
             if row[0] == title:
                 title_exists = True
-                break
+                continue
             else:
                 rows.append(row)
         if not title_exists:
