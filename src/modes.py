@@ -8,7 +8,7 @@ def get(cli_args):
     try:
         main_password = utils.get_and_check_main_password()
         password_token = file_handler.get_password(cli_args.title).encode()
-        password = crypto.decrypt_text(main_password, password_token)
+        password = crypto.decrypt_password(main_password, password_token)
         pyperclip.copy(password)
         print("password was copied to clipboard")
     except (ValueError):
@@ -18,7 +18,7 @@ def get(cli_args):
 def set(cli_args):
     try:
         main_password = utils.get_and_check_main_password()
-        password_token = crypto.encrypt_text(main_password, cli_args.password)
+        password_token = crypto.encrypt_password(main_password, cli_args.password)
         file_handler.add_password(cli_args.title, password_token.decode())
         print("password was set successfully")
     except (ValueError):

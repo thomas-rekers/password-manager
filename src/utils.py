@@ -43,7 +43,7 @@ def get_and_check_main_password() -> str:
 def generate_password(main_password, title):
     try:
         password = get_random_string()
-        password_token = crypto.encrypt_text(main_password, password)
+        password_token = crypto.encrypt_password(main_password, password)
         file_handler.add_password(title, password_token.decode())
         pyperclip.copy(password)
         print("the password was copied to clipboard")
